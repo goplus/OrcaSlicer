@@ -4,6 +4,7 @@ on:
     pull_request:
       branches: 
        - main 
+       - xgo
       paths:
        - 'localization/**'
        - ".github/workflows/check_locale.yml"
