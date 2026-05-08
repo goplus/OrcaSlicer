@@ -24,6 +24,14 @@ struct Snapshot;
 
 namespace GUI {
 
+class IGLSprite : public GLGizmoPainterBase {
+public:
+     virtual void set_icon(bool is_dark) = 0;
+     virtual bool gizmo_event(SLAGizmoEventType action, const Vec2d& mouse_position, bool shift_down, bool alt_down, bool control_down) = 0;
+};
+
+extern IGLSprite* pluginSprite;
+
 class GLCanvas3D;
 class ClippingPlane;
 enum class SLAGizmoEventType : unsigned char;
@@ -95,6 +103,7 @@ public:
         //FaceRecognition,
         //Hollow,
         Undefined,
+        CustomEType = 0x80, // Custom gizmo types should start from this value to avoid conflict with predefined types.
     };
 
 private:
