@@ -354,6 +354,8 @@ set(lisbslic3r_sources
     MaterialType.hpp
     PrintConfig.cpp
     PrintConfig.hpp
+    QAgentConfig.cpp
+    QAgentConfig.hpp
     Print.cpp
     Print.hpp
     PrintObject.cpp
@@ -505,6 +507,7 @@ add_library(libslic3r_cgal STATIC
     MeshBoolean.hpp MeshBoolean.cpp
     TryCatchSignal.hpp TryCatchSignal.cpp
     Triangulation.hpp Triangulation.cpp
+    MaxInsphere.hpp MaxInsphere.cpp
 )
 target_include_directories(libslic3r_cgal PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 

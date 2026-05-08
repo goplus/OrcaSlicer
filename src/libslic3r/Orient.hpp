@@ -154,6 +154,11 @@ void orient(ModelObject* obj);
 
 void orient(ModelInstance* instance);
 
+// Compute a preferred orientation (unit Z direction) for the given mesh
+// using the AutoOrienter logic. This is a lightweight helper that does
+// not require GUI context and is safe to call from non-GUI code.
+Vec3d auto_orient_mesh(const TriangleMesh &mesh);
+
 }} // namespace Slic3r::orientment
 
 #endif // MODELORIENT_HPP

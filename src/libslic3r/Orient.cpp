@@ -539,6 +539,14 @@ void orient(ModelInstance* instance)
     instance->rotate(rotation_matrix);
 }
 
+Vec3d orientation::auto_orient_mesh(const TriangleMesh& mesh)
+{
+    // AutoOrienter expects a non-const TriangleMesh*; create a local copy
+    TriangleMesh m = mesh;
+    AutoOrienter orienter(&m);
+    return orienter.process();
+}
+
 
 } // namespace arr
 } // namespace Slic3r

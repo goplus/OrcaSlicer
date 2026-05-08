@@ -164,6 +164,10 @@ set(SLIC3R_GUI_SOURCES
     GUI/Gizmos/GLGizmoSeam.hpp
     GUI/Gizmos/GLGizmoSimplify.cpp
     GUI/Gizmos/GLGizmoSimplify.hpp
+    GUI/Gizmos/GLGizmoQAgent.cpp
+    GUI/Gizmos/GLGizmoQAgent.hpp
+    GUI/Gizmos/QAgentTriangleSelector.cpp
+    GUI/Gizmos/QAgentTriangleSelector.hpp
     #GUI/Gizmos/GLGizmoSlaSupports.cpp
     #GUI/Gizmos/GLGizmoSlaSupports.hpp
     GUI/Gizmos/GLGizmosManager.cpp
@@ -707,6 +711,35 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/GeneratedConfig.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/GeneratedConfig.hpp
                @ONLY)
 
+# ---------------------------------------------------------------------------
+# libqagent — platform-independent region-compute pipeline
+# No wxWidgets dependency; can be linked by qagent_ws executable.
+# ---------------------------------------------------------------------------
+add_library(libqagent STATIC
+    QAgent/Types.hpp
+    QAgent/MeshSnapshot.hpp
+    QAgent/MeshSnapshot.cpp
+    QAgent/SeedFill.hpp
+    QAgent/SeedFill.cpp
+    QAgent/RegionGeometry.hpp
+    QAgent/RegionGeometry.cpp
+    QAgent/RegionScoring.hpp
+    QAgent/RegionScoring.cpp
+    QAgent/RegionWorker.hpp
+    QAgent/RegionWorker.cpp
+    QAgent/ViewRender6.hpp
+    QAgent/ViewRender6.cpp
+    QAgent/AIBackPanel.hpp
+    QAgent/AIBackPanel.cpp
+    QAgent/PoseSuggest.hpp
+    QAgent/PoseSuggest.cpp
+    QAgent/SimpleHttp.hpp
+    QAgent/SimpleHttp.cpp
+)
+target_include_directories(libqagent PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(libqagent SYSTEM PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(libqagent libslic3r Boost::system Boost::thread libcurl OpenSSL::SSL OpenSSL::Crypto)
+
 if (WIN32)
     add_library(libslic3r_gui STATIC
         ${SLIC3R_GUI_SOURCES}
@@ -736,7 +769,7 @@ else()
     set(_opengl_link_lib OpenGL::GL)
 endif()
 
-target_link_libraries(libslic3r_gui libslic3r cereal::cereal imgui imguizmo minilzo libvgcode md4c-html GLEW::GLEW OpenGL::GL hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise)
+target_link_libraries(libslic3r_gui libslic3r libqagent cereal::cereal imgui imguizmo minilzo libvgcode md4c-html GLEW::GLEW OpenGL::GL hidapi ${wxWidgets_LIBRARIES} glfw libcurl OpenSSL::SSL OpenSSL::Crypto noise::noise)
 
 
 if (MSVC)

@@ -44,5 +44,10 @@ test.js
 /.cache/
 .clangd
 internal_docs/
-*.flatpak
+resources/q
+*.flatpakcd 
 /flatpak-repo/
+
+# Ignore local development proxy (Node) used for Qwen testing
+tools/model_gateway/
+tools/samples/

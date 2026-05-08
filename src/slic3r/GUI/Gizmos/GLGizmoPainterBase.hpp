@@ -21,6 +21,7 @@ enum class SLAGizmoEventType : unsigned char;
 class ClippingPlane;
 struct Camera;
 class GLGizmoMmuSegmentation;
+class GLGizmoQAgent;
 class Selection;
 
 enum class PainterGizmoType {
@@ -379,6 +380,7 @@ protected:
     virtual wxString handle_snapshot_action_name(bool shift_down, Button button_down) const = 0;
 
     friend class ::Slic3r::GUI::GLGizmoMmuSegmentation;
+    friend class ::Slic3r::GUI::GLGizmoQAgent;
 };
 
 
