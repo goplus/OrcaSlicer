@@ -899,6 +899,8 @@ endfunction()
 # libslic3r, OrcaSlicer GUI and the OrcaSlicer executable.
 add_subdirectory(deps_src)
 add_subdirectory(src)
+# Plugin extension hook — absent in xgo/upstream PR branch, present only in x3d branch.
+include("${CMAKE_SOURCE_DIR}/x3d_root.cmake" OPTIONAL)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT OrcaSlicer_app_gui)
 
 add_dependencies(gettext_make_pot hintsToPot)

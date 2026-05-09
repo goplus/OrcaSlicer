@@ -24,6 +24,9 @@ struct Snapshot;
 
 namespace GUI {
 
+// Forward declaration — full definition in GLGizmoPainterBase.hpp
+class IGLSprite;
+
 class GLCanvas3D;
 class ClippingPlane;
 enum class SLAGizmoEventType : unsigned char;
@@ -94,6 +97,7 @@ public:
         // BBS
         //FaceRecognition,
         //Hollow,
+        CustomEType, // plugin gizmo slot — index must match position in m_gizmos vector
         Undefined,
     };
 
