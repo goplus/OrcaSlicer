@@ -312,9 +312,10 @@ protected:
 
     TriangleSelector::ClippingPlane get_clipping_plane_in_volume_coordinates(const Transform3d &trafo) const;
 
-private:
+protected:
     std::vector<std::vector<ProjectedMousePosition>> get_projected_mouse_positions(const Vec2d &mouse_position, double resolution, const std::vector<Transform3d> &trafo_matrices) const;
 
+private:
     std::vector<ProjectedHeightRange> get_projected_height_range(const Vec2d& mouse_position, double resolution, const std::vector<const ModelVolume*>& part_volumes, const std::vector<Transform3d>& trafo_matrices) const;
 
     bool is_mesh_point_clipped(const Vec3d& point, const Transform3d& trafo) const;
@@ -381,6 +382,18 @@ protected:
     friend class ::Slic3r::GUI::GLGizmoMmuSegmentation;
 };
 
+// Plugin interface: custom gizmos registered at runtime via pluginSpriteFactory
+class IGLSprite : public GLGizmoPainterBase {
+public:
+    using GLGizmoPainterBase::GLGizmoPainterBase;
+    virtual void set_icon(bool is_dark) = 0;
+    virtual bool gizmo_event(SLAGizmoEventType action, const Vec2d& mouse_position, bool shift_down, bool alt_down, bool control_down) = 0;
+};
+
+using IGLSpriteFactory = IGLSprite*(*)(GLCanvas3D&);
+
+// Returns a reference to the global factory slot — safe to call before main().
+IGLSpriteFactory& get_plugin_factory_slot();
 
 } // namespace Slic3r::GUI
 

@@ -1,5 +1,6 @@
 #include "libslic3r/libslic3r.h"
 #include "GLGizmosManager.hpp"
+#include "slic3r/GUI/Gizmos/GLGizmoPainterBase.hpp"
 #include "slic3r/GUI/GLCanvas3D.hpp"
 #include "slic3r/GUI/3DScene.hpp"
 #include "slic3r/GUI/Camera.hpp"
@@ -42,6 +43,13 @@ const float GLGizmosManager::Default_Icons_Size = 40;
 #else
 const float GLGizmosManager::Default_Icons_Size = 64;
 #endif
+
+// Function-local static — guaranteed to be initialized on first call, before any use.
+// Safe to call from QAgentAutoRegister constructor (before main).
+IGLSpriteFactory& get_plugin_factory_slot() {
+    static IGLSpriteFactory s_factory = nullptr;
+    return s_factory;
+}
 
 GLGizmosManager::GLGizmosManager(GLCanvas3D& parent)
     : m_parent(parent)
@@ -131,6 +139,7 @@ void GLGizmosManager::switch_gizmos_icon_filename()
         m_background_texture.texture.load_from_file(resources_dir() + "/images/" + m_background_texture.metadata.filename, false, GLTexture::SingleThreaded, false);
 
     for (auto& gizmo : m_gizmos) {
+        if (!gizmo) continue; // nullptr = unregistered plugin slot, skip
         gizmo->on_change_color_mode(m_is_dark);
         switch (gizmo->get_sprite_id())
         {
@@ -176,6 +185,10 @@ void GLGizmosManager::switch_gizmos_icon_filename()
         case (EType::BrimEars):
             gizmo->set_icon_filename(m_is_dark ? "toolbar_brimears_dark.svg" : "toolbar_brimears.svg");
             break;
+        case (EType::CustomEType):
+            if (auto* sprite = dynamic_cast<IGLSprite*>(gizmo.get()))
+                sprite->set_icon(m_is_dark);
+            break;
         }
 
     }
@@ -219,6 +232,14 @@ bool GLGizmosManager::init()
     m_gizmos.emplace_back(new GLGizmoAssembly(m_parent, m_is_dark ? "toolbar_assembly_dark.svg" : "toolbar_assembly.svg", EType::Assembly));
     m_gizmos.emplace_back(new GLGizmoSimplify(m_parent, "reduce_triangles.svg", EType::Simplify));
     m_gizmos.emplace_back(new GLGizmoBrimEars(m_parent, m_is_dark ? "toolbar_brimears_dark.svg" : "toolbar_brimears.svg", EType::BrimEars));
+    if (auto* factory = get_plugin_factory_slot()) {
+        if (auto* sprite = factory(m_parent))
+            m_gizmos.emplace_back(sprite);
+        else
+            m_gizmos.emplace_back(nullptr);
+    } else {
+        m_gizmos.emplace_back(nullptr);
+    }
     //m_gizmos.emplace_back(new GLGizmoSlaSupports(m_parent, "sla_supports.svg", sprite_id++));
     //m_gizmos.emplace_back(new GLGizmoFaceDetector(m_parent, "face recognition.svg", sprite_id++));
     //m_gizmos.emplace_back(new GLGizmoHollow(m_parent, "hollow.svg", sprite_id++));
@@ -228,6 +249,7 @@ bool GLGizmosManager::init()
         m_assemble_view_data.reset(new AssembleViewDataPool(&m_parent));
 
     for (auto& gizmo : m_gizmos) {
+        if (!gizmo) continue; // nullptr = unregistered plugin slot, skip
         if (! gizmo->init()) {
             m_gizmos.clear();
             return false;
@@ -528,6 +550,11 @@ bool GLGizmosManager::gizmo_event(SLAGizmoEventType action, const Vec2d& mouse_p
         return dynamic_cast<GLGizmoMeshBoolean*>(m_gizmos[MeshBoolean].get())->gizmo_event(action, mouse_position, shift_down, alt_down, control_down);
     else if (m_current == BrimEars)
         return dynamic_cast<GLGizmoBrimEars*>(m_gizmos[BrimEars].get())->gizmo_event(action, mouse_position, shift_down, alt_down, control_down);
+    else if (m_current == CustomEType && CustomEType < (int)m_gizmos.size()) {
+        if (auto* sprite = dynamic_cast<IGLSprite*>(m_gizmos[CustomEType].get()))
+            return sprite->gizmo_event(action, mouse_position, shift_down, alt_down, control_down);
+        return false;
+    }
     else
         return false;
 }
